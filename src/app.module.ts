@@ -11,7 +11,7 @@ import { ExercisesGroupModel } from './exercises-groups/exercises-groups.model';
   providers: [AppService],
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.${process.env.NODE_ENV}.env`,
+      envFilePath: `.env.${process.env.NODE_ENV}`,
     }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
