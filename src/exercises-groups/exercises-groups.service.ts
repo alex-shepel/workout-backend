@@ -14,10 +14,6 @@ export class ExercisesGroupsService {
     return await this.exercisesGroupsRepository.create(dto);
   }
 
-  // async deleteExercisesGroup(dto: DeleteExercisesGroupDto) {
-  //   return await this.exercisesGroupsRepository;
-  // }
-
   async getAllExercisesGroups() {
     return await this.exercisesGroupsRepository.findAll();
   }

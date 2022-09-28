@@ -16,7 +16,7 @@ export class ExercisesGroupsController {
     return this.exercisesGroupsService.createExercisesGroup(exercisesGroupDto);
   }
 
-  @ApiOperation({ summary: 'Returns all present exercises group' })
+  @ApiOperation({ summary: 'Returns all present exercises groups' })
   @ApiResponse({ status: 200, type: [ExercisesGroupModel] })
   @Get()
   getAll() {
