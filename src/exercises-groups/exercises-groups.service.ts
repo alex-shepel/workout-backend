@@ -17,4 +17,26 @@ export class ExercisesGroupsService {
   async getAllExercisesGroups() {
     return await this.exercisesGroupsRepository.findAll();
   }
+
+  async getExerciseById(id: number) {
+    return await this.exercisesGroupsRepository.findOne({
+      where: { ID: id },
+    });
+  }
+
+  async deleteExercisesGroup(id: number) {
+    const group = await this.getExerciseById(id);
+    const deleteCount = await this.exercisesGroupsRepository.destroy({
+      where: { ID: id },
+    });
+    if (deleteCount === 1) {
+      return group;
+    }
+    if (deleteCount > 1) {
+      throw new Error(
+        'ID property of Exercises Group instance in not unique! Check if the DB service is correctly configured.',
+      );
+    }
+    throw new Error(`There is no group with ID=${id}`);
+  }
 }

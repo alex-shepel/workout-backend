@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ExercisesService } from './exercises.service';
 import { ExerciseModel } from './exercises.model';
@@ -28,5 +36,14 @@ export class ExercisesController {
       return this.exercisesService.getExercisesByGroupId(groupId);
     }
     return this.exercisesService.getAllExercises();
+  }
+
+  @ApiOperation({
+    summary: 'Removes exercise by given ID. Returns deleted exercise.',
+  })
+  @ApiResponse({ status: 200, type: ExerciseModel })
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.exercisesService.deleteExercise(Number(id));
   }
 }

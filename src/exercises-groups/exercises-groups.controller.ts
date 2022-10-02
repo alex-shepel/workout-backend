@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ExercisesGroupsService } from './exercises-groups.service';
 import CreateExercisesGroupDto from './dto/create-exercises-group.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -21,5 +21,14 @@ export class ExercisesGroupsController {
   @Get()
   getAll() {
     return this.exercisesGroupsService.getAllExercisesGroups();
+  }
+
+  @ApiOperation({
+    summary: 'Removes exercises group by given ID. Returns deleted group.',
+  })
+  @ApiResponse({ status: 200, type: ExercisesGroupModel })
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.exercisesGroupsService.deleteExercisesGroup(Number(id));
   }
 }
