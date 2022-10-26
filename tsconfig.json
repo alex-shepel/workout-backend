@@ -19,7 +19,8 @@
     "baseUrl": "./src",
     "paths": {
       "exercises/*": ["./exercises/*"],
-      "exercises-groups/*": ["./exercises-groups/*"]
+      "exercises-groups/*": ["./exercises-groups/*"],
+      "templates/*": ["./templates/*"]
     }
   }
 }

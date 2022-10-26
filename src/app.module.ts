@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { ExercisesGroupsModule, ExercisesGroupModel } from 'exercises-groups';
-import { ExercisesModule, ExerciseModel } from 'exercises';
+import { ExercisesGroupModel, ExercisesGroupsModule } from 'exercises-groups';
+import { ExerciseModel, ExercisesModule } from 'exercises';
+import { TemplateModel, TemplatesModule } from 'templates';
 
 @Module({
   imports: [
@@ -16,11 +17,12 @@ import { ExercisesModule, ExerciseModel } from 'exercises';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [ExercisesGroupModel, ExerciseModel],
+      models: [ExercisesGroupModel, ExerciseModel, TemplateModel],
       autoLoadModels: true,
     }),
     ExercisesGroupsModule,
     ExercisesModule,
+    TemplatesModule,
   ],
 })
 export class AppModule {}
