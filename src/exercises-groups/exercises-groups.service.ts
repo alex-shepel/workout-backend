@@ -18,14 +18,14 @@ export class ExercisesGroupsService {
     return await this.exercisesGroupsRepository.findAll();
   }
 
-  async getExerciseById(id: number) {
+  async getExercisesGroupById(id: number) {
     return await this.exercisesGroupsRepository.findOne({
       where: { ID: id },
     });
   }
 
   async deleteExercisesGroup(id: number) {
-    const group = await this.getExerciseById(id);
+    const group = await this.getExercisesGroupById(id);
     const deleteCount = await this.exercisesGroupsRepository.destroy({
       where: { ID: id },
     });
