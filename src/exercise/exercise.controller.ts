@@ -7,12 +7,12 @@ import { CreateExerciseDto } from 'exercise/dto';
 @ApiTags('Exercises')
 @Controller('api/exercises')
 export class ExerciseController {
-  constructor(private exercisesService: ExerciseService) {}
+  constructor(private readonly exercisesService: ExerciseService) {}
 
   @ApiOperation({ summary: 'Creates the new exercise' })
   @ApiResponse({ status: 201, type: ExerciseModel })
   @Post()
-  create(@Body() exerciseDto: CreateExerciseDto) {
+  create(@Body() exerciseDto: CreateExerciseDto): Promise<ExerciseModel> {
     return this.exercisesService.createExercise(exerciseDto);
   }
 
@@ -23,7 +23,7 @@ export class ExerciseController {
   @ApiQuery({ name: 'groupId', required: false })
   @ApiResponse({ status: 200, type: [ExerciseModel] })
   @Get()
-  getExercises(@Query('groupId') groupId?: number) {
+  getExercises(@Query('groupId') groupId?: number): Promise<Array<ExerciseModel>> {
     if (groupId) {
       return this.exercisesService.getExercisesByGroupId(groupId);
     }
@@ -35,7 +35,7 @@ export class ExerciseController {
   })
   @ApiResponse({ status: 200, type: ExerciseModel })
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.exercisesService.deleteExercise(Number(id));
+  delete(@Param('id') id: string): Promise<ExerciseModel> {
+    return this.exercisesService.deleteExerciseById(Number(id));
   }
 }

@@ -7,10 +7,10 @@ import { CreateTemplateDto } from 'template/dto';
 export class TemplateService {
   constructor(
     @InjectModel(TemplateModel)
-    private templatesRepository: typeof TemplateModel,
+    private readonly templatesRepository: typeof TemplateModel,
   ) {}
 
-  async createTemplate(dto: CreateTemplateDto) {
+  async createTemplate(dto: CreateTemplateDto): Promise<TemplateModel> {
     return await this.templatesRepository.create(dto);
   }
 
@@ -18,25 +18,20 @@ export class TemplateService {
     return await this.templatesRepository.findAll();
   }
 
-  async getTemplateById(id: number) {
+  async getTemplateById(id: number): Promise<TemplateModel> {
     return await this.templatesRepository.findOne({
       where: { ID: id },
     });
   }
 
-  async deleteExercisesGroup(id: number) {
-    const group = await this.getTemplateById(id);
+  async deleteTemplateById(id: number): Promise<TemplateModel> {
+    const template = await this.getTemplateById(id);
     const deleteCount = await this.templatesRepository.destroy({
       where: { ID: id },
     });
-    if (deleteCount === 1) {
-      return group;
+    if (deleteCount === 0) {
+      throw new Error(`There is no group with ID=${id}`);
     }
-    if (deleteCount > 1) {
-      throw new Error(
-        'ID property of Template instance in not unique! Check if the DB service is correctly configured.',
-      );
-    }
-    throw new Error(`There is no group with ID=${id}`);
+    return template;
   }
 }

@@ -6,19 +6,19 @@ import { CreateTemplateDto } from 'template/dto';
 
 @Controller('api/templates')
 export class TemplateController {
-  constructor(private templateService: TemplateService) {}
+  constructor(private readonly templateService: TemplateService) {}
 
   @ApiOperation({ summary: 'Creates the new template' })
   @ApiResponse({ status: 201, type: TemplateModel })
   @Post()
-  create(@Body() templateDto: CreateTemplateDto) {
+  create(@Body() templateDto: CreateTemplateDto): Promise<TemplateModel> {
     return this.templateService.createTemplate(templateDto);
   }
 
   @ApiOperation({ summary: 'Returns all present templates' })
   @ApiResponse({ status: 200, type: [TemplateModel] })
   @Get()
-  getAll() {
+  getAll(): Promise<Array<TemplateModel>> {
     return this.templateService.getAllTemplates();
   }
 
@@ -27,7 +27,7 @@ export class TemplateController {
   })
   @ApiResponse({ status: 200, type: TemplateModel })
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.templateService.deleteExercisesGroup(Number(id));
+  delete(@Param('id') id: string): Promise<TemplateModel> {
+    return this.templateService.deleteTemplateById(Number(id));
   }
 }

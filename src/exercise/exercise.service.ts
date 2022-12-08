@@ -7,42 +7,37 @@ import { CreateExerciseDto } from 'exercise/dto';
 export class ExerciseService {
   constructor(
     @InjectModel(ExerciseModel)
-    private exercisesRepository: typeof ExerciseModel,
+    private readonly exercisesRepository: typeof ExerciseModel,
   ) {}
 
-  async createExercise(dto: CreateExerciseDto) {
+  async createExercise(dto: CreateExerciseDto): Promise<ExerciseModel> {
     return await this.exercisesRepository.create(dto);
   }
 
-  async getExerciseById(id: number) {
+  async getAllExercises(): Promise<Array<ExerciseModel>> {
+    return await this.exercisesRepository.findAll();
+  }
+
+  async getExerciseById(id: number): Promise<ExerciseModel> {
     return await this.exercisesRepository.findOne({
       where: { ID: id },
     });
   }
 
-  async deleteExercise(id: number) {
+  async getExercisesByGroupId(groupId: number): Promise<Array<ExerciseModel>> {
+    return await this.exercisesRepository.findAll({
+      where: { GroupID: groupId },
+    });
+  }
+
+  async deleteExerciseById(id: number): Promise<ExerciseModel> {
     const exercise = await this.getExerciseById(id);
     const deleteCount = await this.exercisesRepository.destroy({
       where: { ID: id },
     });
-    if (deleteCount === 1) {
-      return exercise;
+    if (deleteCount === 0) {
+      throw new Error(`There is no exercise with ID=${id}`);
     }
-    if (deleteCount > 1) {
-      throw new Error(
-        'ID property of Exercise instance in not unique! Check if the DB service is correctly configured.',
-      );
-    }
-    throw new Error(`There is no exercise with ID=${id}`);
-  }
-
-  async getAllExercises() {
-    return await this.exercisesRepository.findAll();
-  }
-
-  async getExercisesByGroupId(groupId: number) {
-    return await this.exercisesRepository.findAll({
-      where: { GroupID: groupId },
-    });
+    return exercise;
   }
 }
