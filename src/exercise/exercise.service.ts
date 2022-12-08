@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { ExerciseModel } from './exercises.model';
-import { CreateExerciseDto } from './dto';
+import { ExerciseModel } from 'exercise/exercise.model';
+import { CreateExerciseDto } from 'exercise/dto';
 
 @Injectable()
-export class ExercisesService {
+export class ExerciseService {
   constructor(
     @InjectModel(ExerciseModel)
     private exercisesRepository: typeof ExerciseModel,

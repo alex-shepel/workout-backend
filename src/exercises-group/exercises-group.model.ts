@@ -6,11 +6,8 @@ interface ExercisesGroupCreationAttr {
   Description: string;
 }
 
-@Table({ tableName: 'exercises_groups' })
-export class ExercisesGroupModel extends Model<
-  ExercisesGroupModel,
-  ExercisesGroupCreationAttr
-> {
+@Table({ tableName: 'exercises_group', createdAt: false, updatedAt: false })
+export class ExercisesGroupModel extends Model<ExercisesGroupModel, ExercisesGroupCreationAttr> {
   @ApiProperty({ example: 1, description: 'Unique identifier' })
   @Column({
     type: DataType.INTEGER,

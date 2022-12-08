@@ -1,25 +1,25 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { TemplatesService } from './templates.service';
-import { TemplateModel } from './templates.model';
-import { CreateTemplateDto } from './dto';
+import { TemplateModel } from 'template/template.model';
+import { TemplateService } from 'template/template.service';
+import { CreateTemplateDto } from 'template/dto';
 
 @Controller('api/templates')
-export class TemplatesController {
-  constructor(private templatesService: TemplatesService) {}
+export class TemplateController {
+  constructor(private templateService: TemplateService) {}
 
   @ApiOperation({ summary: 'Creates the new template' })
   @ApiResponse({ status: 201, type: TemplateModel })
   @Post()
   create(@Body() templateDto: CreateTemplateDto) {
-    return this.templatesService.createTemplate(templateDto);
+    return this.templateService.createTemplate(templateDto);
   }
 
   @ApiOperation({ summary: 'Returns all present templates' })
   @ApiResponse({ status: 200, type: [TemplateModel] })
   @Get()
   getAll() {
-    return this.templatesService.getAllTemplates();
+    return this.templateService.getAllTemplates();
   }
 
   @ApiOperation({
@@ -28,6 +28,6 @@ export class TemplatesController {
   @ApiResponse({ status: 200, type: TemplateModel })
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return this.templatesService.deleteExercisesGroup(Number(id));
+    return this.templateService.deleteExercisesGroup(Number(id));
   }
 }

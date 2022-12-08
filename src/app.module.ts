@@ -1,9 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { ExercisesGroupModel, ExercisesGroupsModule } from 'exercises-groups';
-import { ExerciseModel, ExercisesModule } from 'exercises';
-import { TemplateModel, TemplatesModule } from 'templates';
+
+import { ExercisesGroupModule } from 'exercises-group/exercises-group.module';
+import { ExercisesGroupModel } from 'exercises-group/exercises-group.model';
+
+import { ExerciseModule } from 'exercise/exercise.module';
+import { ExerciseModel } from 'exercise/exercise.model';
+
+import { TemplateModule } from 'template/template.module';
+import { TemplateModel } from 'template/template.model';
 
 @Module({
   imports: [
@@ -20,9 +26,9 @@ import { TemplateModel, TemplatesModule } from 'templates';
       models: [ExercisesGroupModel, ExerciseModel, TemplateModel],
       autoLoadModels: true,
     }),
-    ExercisesGroupsModule,
-    ExercisesModule,
-    TemplatesModule,
+    ExercisesGroupModule,
+    ExerciseModule,
+    TemplateModule,
   ],
 })
 export class AppModule {}

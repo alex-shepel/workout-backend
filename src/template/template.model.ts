@@ -6,7 +6,7 @@ interface TemplateCreationAttr {
   Description: string;
 }
 
-@Table({ tableName: 'templates' })
+@Table({ tableName: 'template', createdAt: false, updatedAt: false })
 export class TemplateModel extends Model<TemplateModel, TemplateCreationAttr> {
   @ApiProperty({ example: 1, description: 'Unique identifier' })
   @Column({

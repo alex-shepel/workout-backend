@@ -1,32 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { ExercisesGroupModel } from './exercises-groups.model';
-import CreateExercisesGroupDto from './dto/create-exercises-group.dto';
+import { ExercisesGroupModel } from 'exercises-group/exercises-group.model';
+import { CreateExercisesGroupDto } from 'exercises-group/dto';
 
 @Injectable()
-export class ExercisesGroupsService {
+export class ExercisesGroupService {
   constructor(
     @InjectModel(ExercisesGroupModel)
-    private exercisesGroupsRepository: typeof ExercisesGroupModel,
+    private exercisesGroupRepository: typeof ExercisesGroupModel,
   ) {}
 
   async createExercisesGroup(dto: CreateExercisesGroupDto) {
-    return await this.exercisesGroupsRepository.create(dto);
+    return await this.exercisesGroupRepository.create(dto);
   }
 
   async getAllExercisesGroups() {
-    return await this.exercisesGroupsRepository.findAll();
+    return await this.exercisesGroupRepository.findAll();
   }
 
   async getExercisesGroupById(id: number) {
-    return await this.exercisesGroupsRepository.findOne({
+    return await this.exercisesGroupRepository.findOne({
       where: { ID: id },
     });
   }
 
   async deleteExercisesGroup(id: number) {
     const group = await this.getExercisesGroupById(id);
-    const deleteCount = await this.exercisesGroupsRepository.destroy({
+    const deleteCount = await this.exercisesGroupRepository.destroy({
       where: { ID: id },
     });
     if (deleteCount === 1) {

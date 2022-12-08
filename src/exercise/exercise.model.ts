@@ -1,12 +1,6 @@
-import {
-  Column,
-  DataType,
-  ForeignKey,
-  Model,
-  Table,
-} from 'sequelize-typescript';
+import { Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
-import { ExercisesGroupModel } from 'exercises-groups/exercises-groups.model';
+import { ExercisesGroupModel } from 'exercises-group/exercises-group.model';
 
 interface ExerciseCreationAttr {
   Title: string;
@@ -14,7 +8,7 @@ interface ExerciseCreationAttr {
   GroupID: number;
 }
 
-@Table({ tableName: 'exercises' })
+@Table({ tableName: 'exercise', createdAt: false, updatedAt: false })
 export class ExerciseModel extends Model<ExerciseModel, ExerciseCreationAttr> {
   @ApiProperty({ example: 1, description: 'Unique identifier' })
   @Column({

@@ -1,21 +1,13 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ExercisesService } from './exercises.service';
-import { ExerciseModel } from './exercises.model';
-import { CreateExerciseDto } from './dto';
+import { ExerciseService } from 'exercise/exercise.service';
+import { ExerciseModel } from 'exercise/exercise.model';
+import { CreateExerciseDto } from 'exercise/dto';
 
 @ApiTags('Exercises')
 @Controller('api/exercises')
-export class ExercisesController {
-  constructor(private exercisesService: ExercisesService) {}
+export class ExerciseController {
+  constructor(private exercisesService: ExerciseService) {}
 
   @ApiOperation({ summary: 'Creates the new exercise' })
   @ApiResponse({ status: 201, type: ExerciseModel })

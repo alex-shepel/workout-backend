@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { TemplateModel } from './templates.model';
-import { CreateTemplateDto } from './dto';
+import { TemplateModel } from 'template/template.model';
+import { CreateTemplateDto } from 'template/dto';
 
 @Injectable()
-export class TemplatesService {
+export class TemplateService {
   constructor(
     @InjectModel(TemplateModel)
     private templatesRepository: typeof TemplateModel,
