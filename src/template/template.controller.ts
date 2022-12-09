@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { TemplateModel } from 'template/template.model';
-import { TemplateService } from 'template/template.service';
-import { CreateTemplateDto } from 'template/dto';
+import { TemplateModel } from '@/template/template.model';
+import { TemplateService } from '@/template/template.service';
+import { CreateTemplateDto } from '@/template/dto';
 
 @Controller('api/templates')
 export class TemplateController {

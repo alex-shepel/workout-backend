@@ -16,11 +16,9 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "exercises/*": ["./exercises/*"],
-      "exercises-groups/*": ["./exercises-groups/*"],
-      "templates/*": ["./templates/*"]
+      "@/*": ["src/*"]
     }
   }
 }

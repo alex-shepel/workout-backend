@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { ExerciseModel } from 'exercise/exercise.model';
-import { CreateExerciseDto } from 'exercise/dto';
+import { ExerciseModel } from '@/exercise/exercise.model';
+import { CreateExerciseDto } from '@/exercise/dto';
 
 @Injectable()
 export class ExerciseService {

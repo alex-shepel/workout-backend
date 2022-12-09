@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { ExercisesGroupService } from 'exercises-group/exercises-group.service';
-import { ExercisesGroupModel } from 'exercises-group/exercises-group.model';
-import { CreateExercisesGroupDto } from 'exercises-group/dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ExercisesGroupService } from '@/exercises-group/exercises-group.service';
+import { ExercisesGroupModel } from '@/exercises-group/exercises-group.model';
+import { CreateExercisesGroupDto } from '@/exercises-group/dto';
 
 @ApiTags('Exercises groups')
 @Controller('api/exercises-groups')

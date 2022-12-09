@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ExerciseService } from 'exercise/exercise.service';
-import { ExerciseModel } from 'exercise/exercise.model';
-import { CreateExerciseDto } from 'exercise/dto';
+import { ExerciseService } from '@/exercise/exercise.service';
+import { ExerciseModel } from '@/exercise/exercise.model';
+import { CreateExerciseDto } from '@/exercise/dto';
 
 @ApiTags('Exercises')
 @Controller('api/exercises')

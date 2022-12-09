@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { ExercisesGroupModel } from 'exercises-group/exercises-group.model';
-import { CreateExercisesGroupDto } from 'exercises-group/dto';
+import { ExercisesGroupModel } from '@/exercises-group/exercises-group.model';
+import { CreateExercisesGroupDto } from '@/exercises-group/dto';
 
 @Injectable()
 export class ExercisesGroupService {

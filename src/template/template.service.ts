@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { TemplateModel } from 'template/template.model';
-import { CreateTemplateDto } from 'template/dto';
+import { TemplateModel } from '@/template/template.model';
+import { CreateTemplateDto } from '@/template/dto';
 
 @Injectable()
 export class TemplateService {

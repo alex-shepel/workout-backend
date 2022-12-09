@@ -1,6 +1,6 @@
 import { Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
-import { ExercisesGroupModel } from 'exercises-group/exercises-group.model';
+import { ExercisesGroupModel } from '@/exercises-group/exercises-group.model';
 
 interface ExerciseCreationAttr {
   Title: string;
