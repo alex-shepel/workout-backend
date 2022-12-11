@@ -2,9 +2,9 @@
   "name": "workout-backend",
   "version": "0.0.1",
   "description": "the workout manager application",
-  "author": "https://github.com/alex-shepel",
+  "author": "github.com/alex-shepel",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -13,7 +13,11 @@
     "start:dev": "cross-env NODE_ENV=development nodemon",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"src/**/*.ts\" --fix"
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --d src/ormdatasource.ts",
+    "db:drop": "yarn typeorm schema:drop",
+    "db:create": "yarn typeorm migration:generate",
+    "db:migrate": "yarn typeorm migration:run"
   },
   "_moduleAliases": {
     "@": "./dist"
@@ -23,8 +27,8 @@
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
-    "@nestjs/sequelize": "^9.0.0",
     "@nestjs/swagger": "^6.1.2",
+    "@nestjs/typeorm": "^9.0.1",
     "cross-env": "^7.0.3",
     "module-alias": "^2.2.2",
     "nodemon": "^2.0.20",
@@ -33,16 +37,14 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "sequelize": "^6.21.4",
-    "sequelize-typescript": "^2.1.3",
-    "swagger-ui-express": "^4.5.0"
+    "swagger-ui-express": "^4.5.0",
+    "typeorm": "^0.3.11"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",
     "@types/express": "^4.17.13",
     "@types/node": "^16.0.0",
-    "@types/sequelize": "^4.28.14",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "8.22.0",

@@ -1,37 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { ExercisesGroupModel } from '@/exercises-group/exercises-group.model';
+import { ExercisesGroupEntity } from '@/exercises-group/exercises-group.entity';
 import { CreateExercisesGroupDto } from '@/exercises-group/dto';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ExercisesGroupService {
   constructor(
-    @InjectModel(ExercisesGroupModel)
-    private readonly exercisesGroupRepository: typeof ExercisesGroupModel,
+    @InjectRepository(ExercisesGroupEntity)
+    private readonly exercisesGroupRepository: Repository<ExercisesGroupEntity>,
   ) {}
 
-  async createGroup(dto: CreateExercisesGroupDto): Promise<ExercisesGroupModel> {
+  async createGroup(dto: CreateExercisesGroupDto): Promise<ExercisesGroupEntity> {
     return await this.exercisesGroupRepository.create(dto);
   }
 
-  async getAllGroups(): Promise<Array<ExercisesGroupModel>> {
-    return await this.exercisesGroupRepository.findAll();
+  async getAllGroups(): Promise<Array<ExercisesGroupEntity>> {
+    return await this.exercisesGroupRepository.find();
   }
 
-  async getGroupById(id: number): Promise<ExercisesGroupModel> {
+  async getGroupById(id: number): Promise<ExercisesGroupEntity> {
     return await this.exercisesGroupRepository.findOne({
       where: { ID: id },
     });
   }
 
-  async deleteGroupById(id: number): Promise<ExercisesGroupModel> {
+  async deleteGroupById(id: number): Promise<ExercisesGroupEntity> {
     const group = await this.getGroupById(id);
-    const deleteCount = await this.exercisesGroupRepository.destroy({
-      where: { ID: id },
-    });
-    if (deleteCount === 0) {
-      throw new Error(`There is no group with ID=${id}`);
-    }
+    // const deleteCount = await this.exercisesGroupRepository.destroy({
+    //   where: { ID: id },
+    // });
+    // if (deleteCount === 0) {
+    //   throw new Error(`There is no group with ID=${id}`);
+    // }
     return group;
   }
 }

@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { SequelizeModule } from '@nestjs/sequelize';
 import { ExerciseController } from '@/exercise/exercise.controller';
 import { ExerciseService } from '@/exercise/exercise.service';
-import { ExerciseModel } from '@/exercise/exercise.model';
-import { ExercisesGroupModel } from '@/exercises-group/exercises-group.model';
+import { ExerciseEntity } from '@/exercise/exercise.entity';
+import { ExercisesGroupEntity } from '@/exercises-group/exercises-group.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   controllers: [ExerciseController],
   providers: [ExerciseService],
-  imports: [SequelizeModule.forFeature([ExerciseModel, ExercisesGroupModel])],
+  imports: [TypeOrmModule.forFeature([ExerciseEntity, ExercisesGroupEntity])],
 })
 export class ExerciseModule {}
