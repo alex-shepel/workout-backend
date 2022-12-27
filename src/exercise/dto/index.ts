@@ -1,3 +1,1 @@
-import CreateExerciseDto from './create-exercise.dto';
-
-export { CreateExerciseDto };
+export { default as CreateExerciseDto } from './create-exercise.dto';

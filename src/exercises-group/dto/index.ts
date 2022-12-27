@@ -1,3 +1,1 @@
-import CreateExercisesGroupDto from './create-exercises-group.dto';
-
-export { CreateExercisesGroupDto };
+export { default as CreateExercisesGroupDto } from './create-exercises-group.dto';

@@ -1,3 +1,1 @@
-import CreateTemplateDto from './create-template.dto';
-
-export { CreateTemplateDto };
+export { default as CreateTemplateDto } from './create-template.dto';
