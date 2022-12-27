@@ -5,6 +5,7 @@ import ormconfig from '@/ormconfig';
 import { ExerciseModule } from '@/exercise/exercise.module';
 import { TemplateModule } from '@/template/template.module';
 import { ExercisesGroupModule } from '@/exercises-group/exercises-group.module';
+import { UserModule } from '@/user/user.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ExercisesGroupModule } from '@/exercises-group/exercises-group.module';
     ExerciseModule,
     TemplateModule,
     ExercisesGroupModule,
+    UserModule,
   ],
 })
 export class AppModule {}
