@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserEntity } from '@/user/user.entity';
-import { RegisterDto } from '@/user/dto';
 import { sign } from 'jsonwebtoken';
-import * as process from 'process';
-import { RegisterResponseInterface } from '@/user/types';
+import { compare } from 'bcrypt';
+import { UserEntity } from '@/user/user.entity';
+import { LoginDto, RegisterDto } from '@/user/dto';
+import { IAuthResponse } from '@/user/types';
 
 @Injectable()
 export class UserService {
@@ -14,23 +14,50 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<RegisterResponseInterface> {
-    const user = new UserEntity();
-    Object.assign(user, registerDto);
-    const userEntity = await this.userRepository.save(user);
+  async register(registerDto: RegisterDto): Promise<UserEntity> {
+    const userByEmail = await this.userRepository.findOne({
+      where: { Email: registerDto.Email },
+    });
+    if (userByEmail) {
+      throw new HttpException('Email is taken.', HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+    const newUser = new UserEntity();
+    Object.assign(newUser, registerDto);
+    return await this.userRepository.save(newUser);
+  }
+
+  async login(loginDto: LoginDto): Promise<UserEntity> {
+    const userByEmail = await this.userRepository.findOne({
+      where: { Email: loginDto.Email },
+      select: ['ID', 'Email', 'Name', 'Password'],
+    });
+    if (!userByEmail) {
+      throw new HttpException('Incorrect email.', HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+    const isPasswordCorrect = await compare(loginDto.Password, userByEmail.Password);
+    if (!isPasswordCorrect) {
+      throw new HttpException('Incorrect password.', HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+    return userByEmail;
+  }
+
+  async findById(id: number): Promise<UserEntity> {
+    return this.userRepository.findOne({ where: { ID: id } });
+  }
+
+  buildResponse(user: UserEntity): IAuthResponse {
     return {
-      ID: userEntity.ID,
-      Name: userEntity.Name,
-      Email: userEntity.Email,
+      ID: user.ID,
+      Name: user.Name,
+      Email: user.Email,
       Token: this.generateToken(user),
     };
   }
 
-  generateToken(user: UserEntity): RegisterResponseInterface['Token'] {
+  generateToken(user: UserEntity): IAuthResponse['Token'] {
     return sign(
       {
         ID: user.ID,
-        Name: user.Name,
         Email: user.Email,
       },
       process.env.JWT_SECRET,

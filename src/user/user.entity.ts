@@ -30,7 +30,9 @@ export class UserEntity {
     example: '31415',
     description: 'The password.',
   })
-  @Column()
+  @Column({
+    select: false,
+  })
   Password: string;
 
   @BeforeInsert()

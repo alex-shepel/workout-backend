@@ -1,1 +1,1 @@
-export { default as RegisterResponseInterface } from './registerResponse.interface';
+export { default as IAuthResponse } from './authResponse.interface';
