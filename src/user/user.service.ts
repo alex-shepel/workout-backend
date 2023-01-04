@@ -41,8 +41,10 @@ export class UserService {
     return userByEmail;
   }
 
-  async findById(id: number): Promise<UserEntity> {
-    return this.userRepository.findOne({ where: { ID: id } });
+  async getById(id: UserEntity['ID']): Promise<UserEntity> {
+    return this.userRepository.findOne({
+      where: { ID: id },
+    });
   }
 
   buildResponse(user: UserEntity): IAuthResponse {

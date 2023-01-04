@@ -1,10 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
-class CreateExercisesGroupDto {
+class CreateGroupDto {
   @ApiProperty({
     example: 'Arms Muscles',
     description: 'Title of exercises group',
   })
+  @IsNotEmpty()
   readonly Title: string;
 
   @ApiProperty({
@@ -14,4 +16,4 @@ class CreateExercisesGroupDto {
   readonly Description: string;
 }
 
-export default CreateExercisesGroupDto;
+export default CreateGroupDto;

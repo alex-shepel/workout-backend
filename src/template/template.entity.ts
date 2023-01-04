@@ -1,43 +1,38 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
-// interface TemplateCreationAttr {
-//   Title: string;
-//   Description: string;
-// }
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { UserEntity } from '@/user/user.entity';
+import { ExerciseEntity } from '@/exercise/exercise.entity';
 
 @Entity({ name: 'templates' })
-export class TemplateEntity /*extends Model<TemplateModel, TemplateCreationAttr>*/ {
+export class TemplateEntity {
   @ApiProperty({ example: 1, description: 'Unique identifier' })
-  // @Column({
-  //   type: DataType.INTEGER,
-  //   unique: true,
-  //   autoIncrement: true,
-  //   primaryKey: true,
-  // })
-  @PrimaryGeneratedColumn()
-  ID: number;
+  @PrimaryGeneratedColumn('uuid')
+  ID: string;
 
   @ApiProperty({
     example: 'Easy Training',
     description: 'Title of the training template',
   })
-  // @Column({
-  //   type: DataType.STRING,
-  //   unique: true,
-  //   allowNull: false,
-  // })
-  @Column()
+  @Column({
+    unique: true,
+    nullable: false,
+  })
   Title: string;
 
   @ApiProperty({
     example: 'Choose to recover the body muscles after the hard trainings.',
     description: 'Description of the training template',
   })
-  // @Column({
-  //   type: DataType.STRING,
-  //   allowNull: true,
-  // })
-  @Column()
+  @Column({
+    default: '',
+    nullable: false,
+  })
   Description: string;
+
+  @ManyToMany(() => ExerciseEntity, exercise => exercise.Templates, { eager: true })
+  @JoinTable()
+  Exercises: ExerciseEntity[];
+
+  @ManyToOne(() => UserEntity, user => user.Templates)
+  User: UserEntity;
 }

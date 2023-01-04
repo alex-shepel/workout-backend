@@ -1,10 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
 class CreateTemplateDto {
   @ApiProperty({
     example: 'Easy Training',
     description: 'Title of the training template',
   })
+  @IsNotEmpty()
   readonly Title: string;
 
   @ApiProperty({

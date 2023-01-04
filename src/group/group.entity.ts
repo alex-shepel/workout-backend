@@ -1,11 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { GroupEntity } from '@/group/group.entity';
-import { TemplateEntity } from '@/template/template.entity';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { ExerciseEntity } from '@/exercise/exercise.entity';
 import { UserEntity } from '@/user/user.entity';
 
-@Entity({ name: 'exercises' })
-export class ExerciseEntity {
+@Entity({ name: 'groups' })
+export class GroupEntity {
   @ApiProperty({ example: 1, description: 'Unique identifier' })
   @PrimaryGeneratedColumn('uuid')
   ID: string;
@@ -21,7 +20,7 @@ export class ExerciseEntity {
   Title: string;
 
   @ApiProperty({
-    example: 'Trains shoulder and forearm muscles.',
+    example: 'Helps to train shoulder and forearm muscles.',
     description: 'Description of represented exercises group',
   })
   @Column({
@@ -30,12 +29,9 @@ export class ExerciseEntity {
   })
   Description: string;
 
-  @ManyToOne(() => GroupEntity, group => group.Exercises, {})
-  Group: GroupEntity;
+  @OneToMany(() => ExerciseEntity, exercise => exercise.Group)
+  Exercises: ExerciseEntity[];
 
-  @ManyToMany(() => TemplateEntity, template => template.Exercises)
-  Templates: TemplateEntity[];
-
-  @ManyToOne(() => UserEntity, user => user.Exercises)
+  @ManyToOne(() => UserEntity, user => user.Groups)
   User: UserEntity;
 }

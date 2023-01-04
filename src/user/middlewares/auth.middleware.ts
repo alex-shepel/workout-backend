@@ -35,7 +35,7 @@ export default class AuthMiddleware implements NestMiddleware {
       return;
     }
 
-    const user = await this.userService.findById(decode.ID);
+    const user = await this.userService.getById(decode.ID);
     if (!user) {
       this.fail(req, next);
       return;

@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import ormconfig from '@/ormconfig';
 import { ExerciseModule } from '@/exercise/exercise.module';
 import { TemplateModule } from '@/template/template.module';
-import { ExercisesGroupModule } from '@/exercises-group/exercises-group.module';
+import { GroupModule } from '@/group/group.module';
 import { UserModule } from '@/user/user.module';
 import { AuthMiddleware } from '@/user/middlewares';
 
@@ -16,7 +16,7 @@ import { AuthMiddleware } from '@/user/middlewares';
     TypeOrmModule.forRoot(ormconfig),
     ExerciseModule,
     TemplateModule,
-    ExercisesGroupModule,
+    GroupModule,
     UserModule,
   ],
 })

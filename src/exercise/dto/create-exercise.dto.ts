@@ -1,10 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
 class CreateExerciseDto {
   @ApiProperty({
     example: 'Pull-ups',
     description: 'Title of the exercise',
   })
+  @IsNotEmpty()
   readonly Title: string;
 
   @ApiProperty({
@@ -18,7 +20,8 @@ class CreateExerciseDto {
     example: 2,
     description: 'The identifier of the correspondent exercises group',
   })
-  readonly GroupID: number;
+  @IsNotEmpty()
+  readonly GroupID: string;
 }
 
 export default CreateExerciseDto;

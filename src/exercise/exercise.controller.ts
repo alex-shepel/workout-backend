@@ -1,8 +1,25 @@
-import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ExerciseService } from '@/exercise/exercise.service';
 import { ExerciseEntity } from '@/exercise/exercise.entity';
 import { CreateExerciseDto } from '@/exercise/dto';
+import { AuthGuard } from '@/user/guards';
+import { User } from '@/user/decorators';
+import { DeleteResult } from 'typeorm';
+import { UserEntity } from '@/user/user.entity';
+import { GroupEntity } from '@/group/group.entity';
+import { ExerciseWithGroupID } from '@/exercise/types';
 
 @ApiTags('Exercises')
 @Controller('api/exercises')
@@ -12,8 +29,10 @@ export class ExerciseController {
   @ApiOperation({ summary: 'Creates the new exercise' })
   @ApiResponse({ status: 201, type: ExerciseEntity })
   @Post()
-  async create(@Body() exerciseDto: CreateExerciseDto): Promise<ExerciseEntity> {
-    return await this.exerciseService.createExercise(exerciseDto);
+  @UseGuards(AuthGuard)
+  @UsePipes(new ValidationPipe())
+  async create(@User() user: UserEntity, @Body() dto: CreateExerciseDto): Promise<ExerciseEntity> {
+    return await this.exerciseService.create(dto, user);
   }
 
   @ApiOperation({
@@ -23,19 +42,27 @@ export class ExerciseController {
   @ApiQuery({ name: 'groupId', required: false })
   @ApiResponse({ status: 200, type: [ExerciseEntity] })
   @Get()
-  async getExercises(@Query('groupId') groupId?: number): Promise<Array<ExerciseEntity>> {
+  @UseGuards(AuthGuard)
+  async get(
+    @User('ID') userId: UserEntity['ID'],
+    @Query('groupId') groupId?: GroupEntity['ID'],
+  ): Promise<Array<ExerciseWithGroupID>> {
     if (groupId) {
-      return await this.exerciseService.getExercisesByGroupId(groupId);
+      return await this.exerciseService.getByGroupId(userId, groupId);
     }
-    return await this.exerciseService.getAllExercises();
+    return await this.exerciseService.getAll(userId);
   }
 
   @ApiOperation({
     summary: 'Removes exercise by given ID. Returns deleted exercise.',
   })
-  @ApiResponse({ status: 200, type: ExerciseEntity })
-  @Delete(':id')
-  async delete(@Param('id') id: string): Promise<ExerciseEntity> {
-    return await this.exerciseService.deleteExerciseById(Number(id));
+  @ApiResponse({ status: 200, type: DeleteResult })
+  @Delete(':exerciseId')
+  @UseGuards(AuthGuard)
+  async delete(
+    @User('ID') userId: UserEntity['ID'],
+    @Param('exerciseId') exerciseId: ExerciseEntity['ID'],
+  ): Promise<ExerciseEntity> {
+    return await this.exerciseService.deleteById(userId, exerciseId);
   }
 }
