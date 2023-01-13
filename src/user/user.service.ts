@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { sign } from 'jsonwebtoken';
+import { Secret, sign, SignOptions } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import { UserEntity } from '@/user/user.entity';
 import { LoginDto, RegisterDto } from '@/user/dto';
-import { IAuthResponse } from '@/user/types';
+import { AuthResponse } from '@/user/types';
 
 @Injectable()
 export class UserService {
@@ -15,22 +15,17 @@ export class UserService {
   ) {}
 
   async register(registerDto: RegisterDto): Promise<UserEntity> {
-    const userByEmail = await this.userRepository.findOne({
-      where: { Email: registerDto.Email },
-    });
+    const userByEmail = await this.getByEmail(registerDto.Email);
     if (userByEmail) {
       throw new HttpException('Email is taken.', HttpStatus.UNPROCESSABLE_ENTITY);
     }
-    const newUser = new UserEntity();
-    Object.assign(newUser, registerDto);
-    return await this.userRepository.save(newUser);
+    const userEntity = new UserEntity();
+    Object.assign(userEntity, registerDto);
+    return await this.userRepository.save(userEntity);
   }
 
   async login(loginDto: LoginDto): Promise<UserEntity> {
-    const userByEmail = await this.userRepository.findOne({
-      where: { Email: loginDto.Email },
-      select: ['ID', 'Email', 'Name', 'Password'],
-    });
+    const userByEmail = await this.getByEmail(loginDto.Email, ['ID', 'Email', 'Name', 'Password']);
     if (!userByEmail) {
       throw new HttpException('Incorrect email.', HttpStatus.UNPROCESSABLE_ENTITY);
     }
@@ -41,28 +36,41 @@ export class UserService {
     return userByEmail;
   }
 
-  async getById(id: UserEntity['ID']): Promise<UserEntity> {
+  async getById(id: UserEntity['ID'], select: Array<keyof UserEntity> = []): Promise<UserEntity> {
     return this.userRepository.findOne({
       where: { ID: id },
+      select,
     });
   }
 
-  buildResponse(user: UserEntity): IAuthResponse {
+  async getByEmail(
+    email: UserEntity['Email'],
+    select: Array<keyof UserEntity> = [],
+  ): Promise<UserEntity> {
+    return this.userRepository.findOne({
+      where: { Email: email },
+      select,
+    });
+  }
+
+  buildResponse(user: UserEntity): AuthResponse {
     return {
       ID: user.ID,
       Name: user.Name,
       Email: user.Email,
-      Token: this.generateToken(user),
+      AccessToken: this.generateToken(
+        user,
+        process.env.ACCESS_TOKEN_SECRET,
+        process.env.ACCESS_TOKEN_LIFETIME,
+      ),
     };
   }
 
-  generateToken(user: UserEntity): IAuthResponse['Token'] {
-    return sign(
-      {
-        ID: user.ID,
-        Email: user.Email,
-      },
-      process.env.JWT_SECRET,
-    );
+  generateToken(
+    user: UserEntity,
+    secret: Secret,
+    expiresIn: SignOptions['expiresIn'],
+  ): AuthResponse['AccessToken'] {
+    return sign({ ID: user.ID, Email: user.Email }, secret, { expiresIn });
   }
 }

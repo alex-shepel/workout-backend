@@ -1,1 +1,1 @@
-export { default as IExpressRequest } from './expressRequest.interface';
+export { default as ExpressRequest } from './expressRequest.interface';

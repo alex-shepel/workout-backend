@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Response } from 'express';
-import { IExpressRequest } from '@/types';
+import { ExpressRequest } from '@/types';
 import { verify } from 'jsonwebtoken';
 import { UserService } from '@/user/user.service';
 import { UserEntity } from '@/user/user.entity';
@@ -9,7 +9,7 @@ import { UserEntity } from '@/user/user.entity';
 export default class AuthMiddleware implements NestMiddleware {
   constructor(private readonly userService: UserService) {}
 
-  async use(req: IExpressRequest, res: Response, next: NextFunction) {
+  async use(req: ExpressRequest, res: Response, next: NextFunction) {
     if (!req.headers.authorization) {
       this.fail(req, next);
       return;
@@ -24,7 +24,7 @@ export default class AuthMiddleware implements NestMiddleware {
 
     let decode;
     try {
-      decode = verify(token, process.env.JWT_SECRET);
+      decode = verify(token, process.env.ACCESS_TOKEN_SECRET);
     } catch (err) {
       this.fail(req, next);
       return;
@@ -45,13 +45,13 @@ export default class AuthMiddleware implements NestMiddleware {
   }
 
   success(user: UserEntity) {
-    return (req: IExpressRequest, next: NextFunction) => {
+    return (req: ExpressRequest, next: NextFunction) => {
       req.user = user;
       next();
     };
   }
 
-  fail(req: IExpressRequest, next: NextFunction) {
+  fail(req: ExpressRequest, next: NextFunction) {
     req.user = null;
     next();
   }

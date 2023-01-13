@@ -15,7 +15,6 @@ export class ExerciseEntity {
     description: 'Title of exercises group',
   })
   @Column({
-    unique: true,
     nullable: false,
   })
   Title: string;

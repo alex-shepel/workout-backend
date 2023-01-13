@@ -33,6 +33,18 @@ export class ExerciseService {
       Group: group,
       User: user,
     });
+    const exerciseByTitle = await this.exerciseRepository.findOne({
+      where: {
+        Title: dto.Title,
+        User: { ID: user.ID },
+      },
+    });
+    if (exerciseByTitle) {
+      throw new HttpException(
+        'The title of the exercise is already in use, please change the current title to avoid confusion.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
     return await this.exerciseRepository.save(exercise);
   }
 
