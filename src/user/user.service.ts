@@ -5,7 +5,7 @@ import { Secret, sign, SignOptions } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import { UserEntity } from '@/user/user.entity';
 import { LoginDto, RegisterDto } from '@/user/dto';
-import { AuthResponse } from '@/user/types';
+import { AuthResponse, TokenPayload } from '@/user/types';
 
 @Injectable()
 export class UserService {
@@ -20,12 +20,18 @@ export class UserService {
       throw new HttpException('Email is taken.', HttpStatus.UNPROCESSABLE_ENTITY);
     }
     const userEntity = new UserEntity();
-    Object.assign(userEntity, registerDto);
+    Object.assign(userEntity, { ...registerDto });
     return await this.userRepository.save(userEntity);
   }
 
   async login(loginDto: LoginDto): Promise<UserEntity> {
-    const userByEmail = await this.getByEmail(loginDto.Email, ['ID', 'Email', 'Name', 'Password']);
+    const userByEmail = await this.getByEmail(loginDto.Email, [
+      'ID',
+      'Email',
+      'Name',
+      'Password',
+      'LastLogoutDate',
+    ]);
     if (!userByEmail) {
       throw new HttpException('Incorrect email.', HttpStatus.UNPROCESSABLE_ENTITY);
     }
@@ -34,6 +40,12 @@ export class UserService {
       throw new HttpException('Incorrect password.', HttpStatus.UNPROCESSABLE_ENTITY);
     }
     return userByEmail;
+  }
+
+  async logout(user: UserEntity): Promise<UserEntity> {
+    const userNew = new UserEntity();
+    Object.assign(userNew, { ...user, LastLogoutDate: new Date() });
+    return await this.userRepository.save(userNew);
   }
 
   async getById(id: UserEntity['ID'], select: Array<keyof UserEntity> = []): Promise<UserEntity> {
@@ -53,16 +65,11 @@ export class UserService {
     });
   }
 
-  buildResponse(user: UserEntity): AuthResponse {
+  buildResponse(user: UserEntity): Pick<UserEntity, 'ID' | 'Name' | 'Email'> {
     return {
       ID: user.ID,
       Name: user.Name,
       Email: user.Email,
-      AccessToken: this.generateToken(
-        user,
-        process.env.ACCESS_TOKEN_SECRET,
-        process.env.ACCESS_TOKEN_LIFETIME,
-      ),
     };
   }
 
@@ -71,6 +78,11 @@ export class UserService {
     secret: Secret,
     expiresIn: SignOptions['expiresIn'],
   ): AuthResponse['AccessToken'] {
-    return sign({ ID: user.ID, Email: user.Email }, secret, { expiresIn });
+    const payload: TokenPayload = {
+      UserID: user.ID,
+      UserEmail: user.Email,
+      UserLastLogoutDate: user.LastLogoutDate.toISOString(),
+    };
+    return sign(payload, secret, { expiresIn });
   }
 }

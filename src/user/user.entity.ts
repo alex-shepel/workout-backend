@@ -38,6 +38,16 @@ export class UserEntity {
   })
   Password: string;
 
+  @ApiProperty({
+    example: 'Tue Jan 17 2023 10:28:35 GMT+0200',
+    description:
+      'The date of the last success logout operation. It could be used for token validation.',
+  })
+  @Column({
+    default: new Date(),
+  })
+  LastLogoutDate: Date;
+
   @BeforeInsert()
   async hashPassword() {
     this.Password = await hash(this.Password, Number(process.env.SALT));

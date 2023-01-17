@@ -4,6 +4,7 @@ import { ExpressRequest } from '@/types';
 import { verify } from 'jsonwebtoken';
 import { UserService } from '@/user/user.service';
 import { UserEntity } from '@/user/user.entity';
+import { TokenPayload } from '@/user/types';
 
 @Injectable()
 export default class AuthMiddleware implements NestMiddleware {
@@ -16,13 +17,13 @@ export default class AuthMiddleware implements NestMiddleware {
     }
 
     const authInfo = req.headers.authorization.split(' ');
-    if (authInfo.length < 2) {
+    if (authInfo.length !== 2 || authInfo[0] !== 'Bearer') {
       this.fail(req, next);
       return;
     }
     const token = authInfo[1];
 
-    let decode;
+    let decode: TokenPayload | string;
     try {
       decode = verify(token, process.env.ACCESS_TOKEN_SECRET);
     } catch (err) {
@@ -30,13 +31,17 @@ export default class AuthMiddleware implements NestMiddleware {
       return;
     }
 
-    if (!decode.hasOwnProperty('ID')) {
+    if (
+      typeof decode === 'string' ||
+      !decode.hasOwnProperty('UserID') ||
+      !decode.hasOwnProperty('UserLastLogoutDate')
+    ) {
       this.fail(req, next);
       return;
     }
 
-    const user = await this.userService.getById(decode.ID);
-    if (!user) {
+    const user = await this.userService.getById(decode.UserID);
+    if (!user || decode.UserLastLogoutDate !== user.LastLogoutDate.toISOString()) {
       this.fail(req, next);
       return;
     }
