@@ -36,12 +36,23 @@ export class TemplateController {
   @ApiResponse({ status: 200, type: [TemplateEntity] })
   @Get()
   @UseGuards(AuthGuard)
-  async getAll(@User('ID') userId: UserEntity['ID']): Promise<Array<TemplateWithExercisesIDs>> {
-    const templates = await this.templateService.getAll(userId);
-    return templates.map(this.templateService.buildTemplateWithExercisesIDsResponse);
+  async getAll(@User('ID') userId: UserEntity['ID']): Promise<TemplateEntity[]> {
+    return await this.templateService.getAll(userId);
   }
 
-  @ApiOperation({ summary: 'Creates relation between provided exercise and template.' })
+  @ApiOperation({ summary: 'Returns a template with related exercises.' })
+  @ApiResponse({ status: 200, type: [TemplateEntity] })
+  @Get(':id/relations')
+  @UseGuards(AuthGuard)
+  async getRelatedExercises(
+    @User('ID') userId: UserEntity['ID'],
+    @Param('id') templateId: TemplateEntity['ID'],
+  ): Promise<TemplateWithExercisesIDs> {
+    const template = await this.templateService.getById(userId, templateId, ['Exercises']);
+    return this.templateService.buildTemplateWithExercisesIDsResponse(template);
+  }
+
+  @ApiOperation({ summary: 'Relates the provided template and exercise.' })
   @ApiResponse({ status: 200, type: [TemplateEntity] })
   @Post('relations')
   @UseGuards(AuthGuard)

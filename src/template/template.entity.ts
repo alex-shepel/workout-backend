@@ -29,7 +29,7 @@ export class TemplateEntity {
   })
   Description: string;
 
-  @ManyToMany(() => ExerciseEntity, exercise => exercise.Templates, { eager: true })
+  @ManyToMany(() => ExerciseEntity, exercise => exercise.Templates)
   @JoinTable()
   Exercises: ExerciseEntity[];
 

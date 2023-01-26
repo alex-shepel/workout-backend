@@ -16,6 +16,12 @@ class RelateTemplateExerciseDto {
     description: 'ID of the targeted exercise.',
   })
   readonly ExerciseID: ExerciseEntity['ID'];
+
+  @ApiProperty({
+    example: true,
+    description: 'Relation state: "true" value adds relation, "false" -- removes.',
+  })
+  readonly AreRelated: boolean;
 }
 
 export default RelateTemplateExerciseDto;

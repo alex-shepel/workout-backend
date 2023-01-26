@@ -6,22 +6,24 @@ import { Repository } from 'typeorm';
 import { UserEntity } from '@/user/user.entity';
 import { TemplateWithExercisesIDs } from '@/template/types';
 import RelateTemplateExerciseDto from '@/template/dto/relate-template-exercise.dto';
+import { ExerciseService } from '@/exercise/exercise.service';
 
 @Injectable()
 export class TemplateService {
   constructor(
     @InjectRepository(TemplateEntity)
-    private readonly templatesRepository: Repository<TemplateEntity>,
+    private readonly templateRepository: Repository<TemplateEntity>,
+    private readonly exerciseService: ExerciseService,
   ) {}
 
   async create(dto: CreateTemplateDto, user: UserEntity): Promise<TemplateEntity> {
     const template = new TemplateEntity();
     Object.assign(template, { ...dto, User: user });
-    return await this.templatesRepository.save(template);
+    return await this.templateRepository.save(template);
   }
 
   async getAll(userId: UserEntity['ID']): Promise<Array<TemplateEntity>> {
-    return await this.templatesRepository.find({
+    return await this.templateRepository.find({
       where: {
         User: { ID: userId },
       },
@@ -31,12 +33,14 @@ export class TemplateService {
   async getById(
     userId: UserEntity['ID'],
     templateId: TemplateEntity['ID'],
+    relations: Array<keyof TemplateEntity> = [],
   ): Promise<TemplateEntity> {
-    const template = await this.templatesRepository.findOne({
+    const template = await this.templateRepository.findOne({
       where: {
         ID: templateId,
         User: { ID: userId },
       },
+      relations,
     });
     if (!template) {
       throw new HttpException('Template does not exist.', HttpStatus.NOT_FOUND);
@@ -49,7 +53,7 @@ export class TemplateService {
     templateId: TemplateEntity['ID'],
   ): Promise<TemplateEntity> {
     const template = await this.getById(userId, templateId);
-    await this.templatesRepository.delete({
+    await this.templateRepository.delete({
       ID: templateId,
       User: { ID: userId },
     });
@@ -60,12 +64,21 @@ export class TemplateService {
     userId: UserEntity['ID'],
     dto: RelateTemplateExerciseDto,
   ): Promise<TemplateEntity> {
-    const template = await this.getById(userId, dto.TemplateID);
-    const alreadyExists = template.Exercises.some(exercise => exercise.ID === dto.ExerciseID);
-    if (alreadyExists) {
-      throw new HttpException('Exercise is already related.', HttpStatus.FORBIDDEN);
+    const exercise = await this.exerciseService.getById(userId, dto.ExerciseID);
+    const template = await this.getById(userId, dto.TemplateID, ['Exercises']);
+    const isRelated = template.Exercises?.some(({ ID }) => ID === exercise.ID);
+    if (isRelated === dto.AreRelated) {
+      throw new HttpException(
+        `Provided template and exercise are ${isRelated ? 'already' : 'not yet'} related.`,
+        HttpStatus.FORBIDDEN,
+      );
     }
-    return template;
+    if (dto.AreRelated) {
+      template.Exercises.push(exercise);
+    } else {
+      template.Exercises = template.Exercises.filter(({ ID }) => ID !== exercise.ID);
+    }
+    return await this.templateRepository.save(template);
   }
 
   buildTemplateWithExercisesIDsResponse(template: TemplateEntity): TemplateWithExercisesIDs {

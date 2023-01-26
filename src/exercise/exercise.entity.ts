@@ -29,7 +29,7 @@ export class ExerciseEntity {
   })
   Description: string;
 
-  @ManyToOne(() => GroupEntity, group => group.Exercises, {})
+  @ManyToOne(() => GroupEntity, group => group.Exercises)
   Group: GroupEntity;
 
   @ManyToMany(() => TemplateEntity, template => template.Exercises)
