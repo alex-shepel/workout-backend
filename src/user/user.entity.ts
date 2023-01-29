@@ -4,6 +4,8 @@ import { hash } from 'bcrypt';
 import { ExerciseEntity } from '@/exercise/exercise.entity';
 import { GroupEntity } from '@/group/group.entity';
 import { TemplateEntity } from '@/template/template.entity';
+import { SetEntity } from '@/set/set.entity';
+import { TrainingEntity } from '@/training/training.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -64,4 +66,10 @@ export class UserEntity {
 
   @OneToMany(() => GroupEntity, template => template.User)
   Templates: TemplateEntity[];
+
+  @OneToMany(() => SetEntity, set => set.User)
+  Sets: SetEntity[];
+
+  @OneToMany(() => TrainingEntity, training => training.User)
+  Trainings: TrainingEntity[];
 }

@@ -7,6 +7,8 @@ import { TemplateModule } from '@/template/template.module';
 import { GroupModule } from '@/group/group.module';
 import { UserModule } from '@/user/user.module';
 import { AuthMiddleware } from '@/user/middlewares';
+import { SetModule } from '@/set/set.module';
+import { TrainingModule } from '@/training/training.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { AuthMiddleware } from '@/user/middlewares';
     TemplateModule,
     GroupModule,
     UserModule,
+    SetModule,
+    TrainingModule,
   ],
 })
 export class AppModule {

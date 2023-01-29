@@ -1,8 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { GroupEntity } from '@/group/group.entity';
 import { TemplateEntity } from '@/template/template.entity';
 import { UserEntity } from '@/user/user.entity';
+import { SetEntity } from '@/set/set.entity';
+import { TrainingEntity } from '@/training/training.entity';
 
 @Entity({ name: 'exercises' })
 export class ExerciseEntity {
@@ -34,6 +44,13 @@ export class ExerciseEntity {
 
   @ManyToMany(() => TemplateEntity, template => template.Exercises)
   Templates: TemplateEntity[];
+
+  @OneToMany(() => SetEntity, set => set.Exercise)
+  Sets: SetEntity;
+
+  @ManyToMany(() => TrainingEntity, training => training.Exercises)
+  @JoinTable()
+  Trainings: TrainingEntity[];
 
   @ManyToOne(() => UserEntity, user => user.Exercises)
   User: UserEntity;
