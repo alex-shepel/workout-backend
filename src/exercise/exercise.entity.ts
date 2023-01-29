@@ -6,7 +6,7 @@ import { UserEntity } from '@/user/user.entity';
 
 @Entity({ name: 'exercises' })
 export class ExerciseEntity {
-  @ApiProperty({ example: 1, description: 'Unique identifier' })
+  @ApiProperty({ example: '27ed-6f79-40b1-aa4b-d24f', description: 'Unique identifier' })
   @PrimaryGeneratedColumn('uuid')
   ID: string;
 

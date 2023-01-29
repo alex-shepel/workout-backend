@@ -5,7 +5,7 @@ import { ExerciseEntity } from '@/exercise/exercise.entity';
 
 @Entity({ name: 'templates' })
 export class TemplateEntity {
-  @ApiProperty({ example: 1, description: 'Unique identifier' })
+  @ApiProperty({ example: '27ed-6f79-40b1-aa4b-d24f', description: 'Unique identifier' })
   @PrimaryGeneratedColumn('uuid')
   ID: string;
 
