@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ExerciseEntity } from '@/exercise/exercise.entity';
 import { UserEntity } from '@/user/user.entity';
 import { TrainingEntity } from '@/training/training.entity';
@@ -14,11 +14,8 @@ export class SetEntity {
     example: 'Tue Jan 17 2023 10:28:35 GMT+0200',
     description: 'The date of set completion.',
   })
-  @Column({
-    default: new Date(),
-    nullable: false,
-  })
-  Date: Date;
+  @CreateDateColumn()
+  CreatedDate: Date;
 
   @ApiProperty({
     example: 70,
@@ -37,6 +34,16 @@ export class SetEntity {
     nullable: false,
   })
   Repetitions: number;
+
+  @ApiProperty({
+    example: true,
+    description: 'Is set completed?',
+  })
+  @Column({
+    default: false,
+    nullable: false,
+  })
+  Completed: boolean;
 
   @ManyToOne(() => ExerciseEntity, exercise => exercise.Sets)
   Exercise: ExerciseEntity;

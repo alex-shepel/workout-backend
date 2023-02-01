@@ -1,13 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { GroupEntity } from '@/group/group.entity';
 import { TemplateEntity } from '@/template/template.entity';
 import { UserEntity } from '@/user/user.entity';
@@ -39,6 +31,16 @@ export class ExerciseEntity {
   })
   Description: string;
 
+  @ApiProperty({
+    example: 5,
+    description: 'The number of exercises performed over time.',
+  })
+  @Column({
+    default: 0,
+    nullable: false,
+  })
+  CompletedCount: number;
+
   @ManyToOne(() => GroupEntity, group => group.Exercises)
   Group: GroupEntity;
 
@@ -49,7 +51,6 @@ export class ExerciseEntity {
   Sets: SetEntity;
 
   @ManyToMany(() => TrainingEntity, training => training.Exercises)
-  @JoinTable()
   Trainings: TrainingEntity[];
 
   @ManyToOne(() => UserEntity, user => user.Exercises)

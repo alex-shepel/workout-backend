@@ -9,5 +9,6 @@ import { ExerciseModule } from '@/exercise/exercise.module';
   providers: [TemplateService],
   controllers: [TemplateController],
   imports: [TypeOrmModule.forFeature([TemplateEntity]), ExerciseModule],
+  exports: [TemplateService],
 })
 export class TemplateModule {}

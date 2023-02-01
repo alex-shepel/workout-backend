@@ -22,11 +22,15 @@ export class TemplateService {
     return await this.templateRepository.save(template);
   }
 
-  async getAll(userId: UserEntity['ID']): Promise<Array<TemplateEntity>> {
+  async getAll(
+    userId: UserEntity['ID'],
+    relations: Array<keyof TemplateEntity> = [],
+  ): Promise<Array<TemplateEntity>> {
     return await this.templateRepository.find({
       where: {
         User: { ID: userId },
       },
+      relations,
     });
   }
 
