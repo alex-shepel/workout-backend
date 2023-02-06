@@ -4,6 +4,7 @@ import { TrainingEntity } from '@/training/training.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '@/user/user.entity';
 import { TemplateService } from '@/template/template.service';
+import { UpdateCurrentTrainingDto } from '@/training/dto';
 
 @Injectable()
 export class TrainingService {
@@ -20,6 +21,16 @@ export class TrainingService {
         Completed: false,
       },
     });
+  }
+
+  async updateCurrent(
+    userId: UserEntity['ID'],
+    dto: UpdateCurrentTrainingDto,
+  ): Promise<TrainingEntity> {
+    const current = await this.getCurrent(userId);
+    const template = await this.templateService.getById(userId, dto.TemplateID);
+    this.trainingRepository.merge(current, { Template: template });
+    return await this.trainingRepository.save(current);
   }
 
   async next(user: UserEntity): Promise<TrainingEntity> {
