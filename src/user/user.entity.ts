@@ -49,8 +49,8 @@ export class UserEntity {
       'The date of the last success logout operation. It could be used for token validation.',
   })
   @Column({
-    type: 'date',
-    default: () => 'CURRENT_DATE',
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   LastLogoutDate: Date;
 
