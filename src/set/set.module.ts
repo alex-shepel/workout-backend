@@ -8,5 +8,6 @@ import { SetController } from '@/set/set.controller';
   providers: [SetService],
   controllers: [SetController],
   imports: [TypeOrmModule.forFeature([SetEntity])],
+  exports: [SetService],
 })
 export class SetModule {}

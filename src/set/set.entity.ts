@@ -18,11 +18,21 @@ export class SetEntity {
   CreatedDate: Date;
 
   @ApiProperty({
+    example: 3,
+    description: 'The sequential number of set execution.',
+  })
+  @Column({
+    nullable: false,
+  })
+  SequentialNumber: number;
+
+  @ApiProperty({
     example: 70,
     description: 'The weight of the dumbbell(s) or barbell.',
   })
   @Column({
     nullable: false,
+    default: 0,
   })
   Weight: number;
 
@@ -32,6 +42,7 @@ export class SetEntity {
   })
   @Column({
     nullable: false,
+    default: 0,
   })
   Repetitions: number;
 

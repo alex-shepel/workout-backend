@@ -36,6 +36,7 @@ export class TrainingEntity {
   @UpdateDateColumn()
   UpdatedDate: Date;
 
+  /* TODO: separate sequential numbers of one user's trainings from another */
   @ApiProperty({
     example: 42,
     description: "The training's sequential number.",
@@ -62,7 +63,7 @@ export class TrainingEntity {
   Exercises: ExerciseEntity[];
 
   @OneToMany(() => SetEntity, set => set.Training)
-  Sets: SetEntity;
+  Sets: SetEntity[];
 
   @ManyToOne(() => UserEntity, user => user.Groups)
   User: UserEntity;

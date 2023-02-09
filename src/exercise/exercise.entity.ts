@@ -48,7 +48,7 @@ export class ExerciseEntity {
   Templates: TemplateEntity[];
 
   @OneToMany(() => SetEntity, set => set.Exercise)
-  Sets: SetEntity;
+  Sets: SetEntity[];
 
   @ManyToMany(() => TrainingEntity, training => training.Exercises)
   Trainings: TrainingEntity[];
