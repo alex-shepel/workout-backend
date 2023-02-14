@@ -35,7 +35,9 @@ export class TrainingService {
     }
     training.Exercises.forEach(exercise => {
       const isCurrentSet = (goalSet: SetEntity) => training.Sets.some(set => set.ID === goalSet.ID);
-      exercise.Sets = exercise.Sets.filter(isCurrentSet);
+      exercise.Sets = exercise.Sets.filter(isCurrentSet).sort(
+        (a, b) => a.SequentialNumber - b.SequentialNumber,
+      );
     });
     delete training.Sets;
     return training;
