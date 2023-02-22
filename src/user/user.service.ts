@@ -6,12 +6,14 @@ import { compare } from 'bcrypt';
 import { UserEntity } from '@/user/user.entity';
 import { LoginDto, RegisterDto } from '@/user/dto';
 import { AuthResponse, TokenPayload } from '@/user/types';
+import { MonitorService } from '@/monitor/monitor.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    private readonly monitorService: MonitorService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<UserEntity> {
@@ -20,8 +22,10 @@ export class UserService {
       throw new HttpException('Email is taken.', HttpStatus.UNPROCESSABLE_ENTITY);
     }
     const userEntity = new UserEntity();
-    Object.assign(userEntity, { ...registerDto });
-    return await this.userRepository.save(userEntity);
+    this.userRepository.merge(userEntity, registerDto);
+    const savedUser = await this.userRepository.save(userEntity);
+    await this.monitorService.create(savedUser);
+    return savedUser;
   }
 
   async login(loginDto: LoginDto): Promise<UserEntity> {

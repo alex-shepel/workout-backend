@@ -9,6 +9,7 @@ import { UserModule } from '@/user/user.module';
 import { AuthMiddleware } from '@/user/middlewares';
 import { SetModule } from '@/set/set.module';
 import { TrainingModule } from '@/training/training.module';
+import { MonitorModule } from './monitor/monitor.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { TrainingModule } from '@/training/training.module';
     UserModule,
     SetModule,
     TrainingModule,
+    MonitorModule,
   ],
 })
 export class AppModule {

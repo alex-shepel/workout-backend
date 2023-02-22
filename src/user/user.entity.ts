@@ -1,4 +1,12 @@
-import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { hash } from 'bcrypt';
 import { ExerciseEntity } from '@/exercise/exercise.entity';
@@ -6,6 +14,7 @@ import { GroupEntity } from '@/group/group.entity';
 import { TemplateEntity } from '@/template/template.entity';
 import { SetEntity } from '@/set/set.entity';
 import { TrainingEntity } from '@/training/training.entity';
+import { MonitorEntity } from '@/monitor/monitor.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -73,4 +82,8 @@ export class UserEntity {
 
   @OneToMany(() => TrainingEntity, training => training.User)
   Trainings: TrainingEntity[];
+
+  @OneToOne(() => MonitorEntity, monitor => monitor.User)
+  @JoinColumn()
+  Monitor: MonitorEntity;
 }
