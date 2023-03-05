@@ -23,7 +23,7 @@ export class TrainingService {
   ) {}
 
   async getCurrent(user: UserEntity): Promise<TrainingEntity> {
-    let training = await this.trainingRepository.findOne({
+    const training = await this.trainingRepository.findOne({
       where: {
         User: { ID: user.ID },
       },
@@ -37,7 +37,7 @@ export class TrainingService {
       },
     });
     if (!training) {
-      training = await this.next(user);
+      return await this.next(user);
     }
     training.Exercises.forEach(exercise => {
       const isCurrentSet = (goalSet: SetEntity) => training.Sets.some(set => set.ID === goalSet.ID);
