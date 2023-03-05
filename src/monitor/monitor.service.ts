@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MonitorEntity } from '@/monitor/monitor.entity';
 import { UserEntity } from '@/user/user.entity';
+import { UpdateMonitorStateDto } from '@/monitor/dto';
+import { MonitorState } from '@/monitor/types';
 
 @Injectable()
 export class MonitorService {
@@ -25,13 +27,25 @@ export class MonitorService {
     return await this.monitorRepository.save(monitor);
   }
 
-  async getCurrentTemplate(userId: UserEntity['ID']): Promise<number> {
-    const { LastTemplateSequentialNumber } = await this.monitorRepository.findOne({
-      select: ['LastTemplateSequentialNumber'],
+  async getCurrentState(userId: UserEntity['ID']): Promise<MonitorState> {
+    return await this.monitorRepository
+      .createQueryBuilder('monitors')
+      .leftJoinAndSelect('monitors.User', 'user')
+      .where('user.ID = :userId', { userId })
+      .addSelect('"LastTemplateSequentialNumber", "TrainingsCount"')
+      .getOne();
+  }
+
+  async update(userId: UserEntity['ID'], dto: UpdateMonitorStateDto): Promise<MonitorState> {
+    const monitor = await this.monitorRepository.findOne({
       where: {
         User: { ID: userId },
       },
     });
-    return LastTemplateSequentialNumber;
+    await this.monitorRepository.merge(monitor, dto);
+    const { LastTemplateSequentialNumber, TrainingsCount } = await this.monitorRepository.save(
+      monitor,
+    );
+    return { LastTemplateSequentialNumber, TrainingsCount };
   }
 }

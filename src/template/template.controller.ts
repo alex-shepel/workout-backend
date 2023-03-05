@@ -40,6 +40,17 @@ export class TemplateController {
     return await this.templateService.getAll(userId);
   }
 
+  @ApiOperation({ summary: 'Returns next template' })
+  @ApiResponse({ status: 200, type: [TemplateEntity] })
+  @Get('next/:sequentialNumber')
+  @UseGuards(AuthGuard)
+  async next(
+    @User('ID') userId: UserEntity['ID'],
+    @Param('sequentialNumber') sequentialNumber: number,
+  ): Promise<TemplateEntity> {
+    return await this.templateService.next(userId, sequentialNumber);
+  }
+
   @ApiOperation({ summary: 'Returns a template with related exercises.' })
   @ApiResponse({ status: 200, type: [TemplateEntity] })
   @Get(':id/relations')

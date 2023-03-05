@@ -38,6 +38,15 @@ export class TemplateEntity {
   })
   Description: string;
 
+  @ApiProperty({
+    example: 3,
+    description: 'The sequential number of template execution.',
+  })
+  @Column({
+    nullable: false,
+  })
+  SequentialNumber: number;
+
   @OneToMany(() => TrainingEntity, training => training.Template)
   Trainings: TrainingEntity[];
 

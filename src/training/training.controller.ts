@@ -16,8 +16,8 @@ export class TrainingController {
   @ApiResponse({ status: 200, type: [TrainingEntity] })
   @Get('current')
   @UseGuards(AuthGuard)
-  async getCurrent(@User('ID') userId: UserEntity['ID']): Promise<TrainingEntity> {
-    return await this.trainingService.getCurrent(userId);
+  async getCurrent(@User() user: UserEntity): Promise<TrainingEntity> {
+    return await this.trainingService.getCurrent(user);
   }
 
   @ApiOperation({ summary: 'Updates current training' })
@@ -25,10 +25,10 @@ export class TrainingController {
   @Post('current')
   @UseGuards(AuthGuard)
   async updateCurrent(
-    @User('ID') userId: UserEntity['ID'],
+    @User() user: UserEntity,
     @Body() dto: UpdateCurrentTrainingDto,
   ): Promise<TrainingEntity> {
-    return await this.trainingService.updateCurrent(userId, dto);
+    return await this.trainingService.updateCurrent(user, dto);
   }
 
   @ApiOperation({ summary: 'Creates new training and sets it as current' })

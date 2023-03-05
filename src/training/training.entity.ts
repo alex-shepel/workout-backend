@@ -3,7 +3,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  Generated,
   JoinTable,
   ManyToMany,
   ManyToOne,
@@ -36,15 +35,6 @@ export class TrainingEntity {
   @UpdateDateColumn()
   UpdatedDate: Date;
 
-  /* TODO: separate sequential numbers of one user's trainings from another */
-  @ApiProperty({
-    example: 42,
-    description: "The training's sequential number.",
-  })
-  @Column()
-  @Generated('increment')
-  SequentialNumber: number;
-
   @ApiProperty({
     example: true,
     description: 'Is training completed?',
@@ -58,7 +48,7 @@ export class TrainingEntity {
   @ManyToOne(() => TemplateEntity, template => template.Trainings)
   Template: TemplateEntity;
 
-  @ManyToMany(() => ExerciseEntity, exercise => exercise.Trainings)
+  @ManyToMany(() => ExerciseEntity, exercise => exercise.Trainings, { cascade: ['update'] })
   @JoinTable()
   Exercises: ExerciseEntity[];
 

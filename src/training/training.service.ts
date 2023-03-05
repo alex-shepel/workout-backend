@@ -8,6 +8,9 @@ import { UpdateCurrentTrainingDto } from '@/training/dto';
 import { SetService } from '@/set/set.service';
 import { SetEntity } from '@/set/set.entity';
 import { ExerciseEntity } from '@/exercise/exercise.entity';
+import { MonitorService } from '@/monitor/monitor.service';
+import { GroupEntity } from '@/group/group.entity';
+import { UpdateMonitorStateDto } from '@/monitor/dto';
 
 @Injectable()
 export class TrainingService {
@@ -16,22 +19,25 @@ export class TrainingService {
     private readonly trainingRepository: Repository<TrainingEntity>,
     private readonly templateService: TemplateService,
     private readonly setService: SetService,
+    private readonly monitorService: MonitorService,
   ) {}
 
-  async getCurrent(userId: UserEntity['ID']): Promise<TrainingEntity> {
-    const training = await this.trainingRepository.findOne({
+  async getCurrent(user: UserEntity): Promise<TrainingEntity> {
+    let training = await this.trainingRepository.findOne({
       where: {
-        User: { ID: userId },
-        Completed: false,
+        User: { ID: user.ID },
       },
       relations: {
         Template: true,
         Exercises: { Sets: true },
         Sets: true,
       },
+      order: {
+        UpdatedDate: 'DESC',
+      },
     });
     if (!training) {
-      throw new HttpException("You don't have any incomplete trainings.", HttpStatus.NOT_FOUND);
+      training = await this.next(user);
     }
     training.Exercises.forEach(exercise => {
       const isCurrentSet = (goalSet: SetEntity) => training.Sets.some(set => set.ID === goalSet.ID);
@@ -43,26 +49,14 @@ export class TrainingService {
     return training;
   }
 
-  async updateCurrent(
-    userId: UserEntity['ID'],
-    dto: UpdateCurrentTrainingDto,
-  ): Promise<TrainingEntity> {
-    const current = await this.getCurrent(userId);
-    const template = await this.templateService.getById(userId, dto.TemplateID);
+  async updateCurrent(user: UserEntity, dto: UpdateCurrentTrainingDto): Promise<TrainingEntity> {
+    const current = await this.getCurrent(user);
+    const template = await this.templateService.getById(user.ID, dto.TemplateID);
     this.trainingRepository.merge(current, { Template: template });
     return await this.trainingRepository.save(current);
   }
 
   async next(user: UserEntity): Promise<TrainingEntity> {
-    const incomplete = await this.trainingRepository.findOne({
-      where: {
-        User: { ID: user.ID },
-        Completed: false,
-      },
-    });
-    if (incomplete) {
-      throw new HttpException('You should complete previous training first.', HttpStatus.CONFLICT);
-    }
     const templates = await this.templateService.getAll(user.ID, ['Exercises']);
     if (templates.length === 0) {
       throw new HttpException(
@@ -70,24 +64,36 @@ export class TrainingService {
         HttpStatus.CONFLICT,
       );
     }
-    /* TODO: implement template selection by sequential number */
-    const currentTemplate = templates[0];
-    const exercises = currentTemplate.Exercises;
-    if (exercises.length === 0) {
+    const monitorState = await this.monitorService.getCurrentState(user.ID);
+    const nextTemplate = await this.templateService.next(
+      user.ID,
+      monitorState.LastTemplateSequentialNumber,
+    );
+    await this.complete(user.ID, {
+      LastTemplateSequentialNumber: nextTemplate.SequentialNumber,
+      TrainingsCount: monitorState.TrainingsCount + 1,
+    });
+    const exercisesByGroups = nextTemplate.Exercises.reduce((exercisesByGroups, exercise) => {
+      const groupedExercise = exercisesByGroups.get(exercise.Group.ID);
+      if (!groupedExercise || exercise.CompletedCount < groupedExercise.CompletedCount) {
+        exercisesByGroups.set(exercise.Group.ID, exercise);
+      }
+      return exercisesByGroups;
+    }, new Map<GroupEntity['ID'], ExerciseEntity>());
+    if (exercisesByGroups.size === 0) {
       throw new HttpException(
         'You should create at least one exercise first.',
         HttpStatus.CONFLICT,
       );
     }
-    /* TODO: implement exercises selection by groups and min completed count */
-    const currentExercises = exercises;
-    delete currentTemplate.Exercises;
+    const currentExercises = [...exercisesByGroups.values()];
+    delete nextTemplate.Exercises;
     for (const exercise of currentExercises) {
       exercise.Sets = await this.createSets(user, exercise);
     }
     const training = new TrainingEntity();
     this.trainingRepository.merge(training, {
-      Template: currentTemplate,
+      Template: nextTemplate,
       Exercises: currentExercises,
       Sets: currentExercises.flatMap(exercise => exercise.Sets),
       User: user,
@@ -96,6 +102,35 @@ export class TrainingService {
     delete result.User;
     delete result.Sets;
     return result;
+  }
+
+  private async complete(
+    userId: UserEntity['ID'],
+    updateMonitorDto: UpdateMonitorStateDto,
+  ): Promise<void> {
+    const incomplete = await this.trainingRepository.findOne({
+      where: {
+        User: { ID: userId },
+        Completed: false,
+      },
+      relations: {
+        Exercises: true,
+        Sets: true,
+      },
+    });
+    if (!incomplete) {
+      return;
+    }
+    if (incomplete.Sets.some(set => !set.Completed)) {
+      throw new HttpException(
+        'You should complete all sets of the previous training first.',
+        HttpStatus.CONFLICT,
+      );
+    }
+    incomplete.Completed = true;
+    incomplete.Exercises.forEach(exercise => (exercise.CompletedCount += 1));
+    await this.trainingRepository.save(incomplete);
+    await this.monitorService.update(userId, updateMonitorDto);
   }
 
   private createSets(user: UserEntity, exercise: ExerciseEntity): Promise<SetEntity[]> {

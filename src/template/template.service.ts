@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { TemplateEntity } from '@/template/template.entity';
 import { CreateTemplateDto } from '@/template/dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { UserEntity } from '@/user/user.entity';
 import { TemplateWithExercisesIDs } from '@/template/types';
 import RelateTemplateExerciseDto from '@/template/dto/relate-template-exercise.dto';
@@ -18,7 +18,10 @@ export class TemplateService {
 
   async create(dto: CreateTemplateDto, user: UserEntity): Promise<TemplateEntity> {
     const template = new TemplateEntity();
-    Object.assign(template, { ...dto, User: user });
+    const lastSequentialNumber = await this.templateRepository.maximum('SequentialNumber', {
+      User: { ID: user.ID },
+    });
+    Object.assign(template, { ...dto, SequentialNumber: lastSequentialNumber + 1, User: user });
     return await this.templateRepository.save(template);
   }
 
@@ -83,6 +86,36 @@ export class TemplateService {
       template.Exercises = template.Exercises.filter(({ ID }) => ID !== exercise.ID);
     }
     return await this.templateRepository.save(template);
+  }
+
+  async next(
+    userId: UserEntity['ID'],
+    lastSequentialNumber: TemplateEntity['SequentialNumber'],
+  ): Promise<TemplateEntity> {
+    const sequentialNumber = await this.templateRepository
+      .createQueryBuilder('template')
+      .leftJoinAndSelect('template.User', 'user')
+      .select('MAX(template.SequentialNumber)', 'max')
+      .addSelect('MIN(template.SequentialNumber)', 'min')
+      .where('user.ID = :userId', { userId })
+      .getRawOne<{ max: number; min: number }>();
+    return await this.templateRepository.findOne({
+      where: {
+        SequentialNumber:
+          lastSequentialNumber >= sequentialNumber.max
+            ? sequentialNumber.min
+            : MoreThan(lastSequentialNumber),
+        User: { ID: userId },
+      },
+      order: {
+        SequentialNumber: 'ASC',
+      },
+      relations: {
+        Exercises: {
+          Group: true,
+        },
+      },
+    });
   }
 
   buildTemplateWithExercisesIDsResponse(template: TemplateEntity): TemplateWithExercisesIDs {
