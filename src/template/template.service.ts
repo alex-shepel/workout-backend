@@ -1,12 +1,21 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  ForwardReference,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { TemplateEntity } from '@/template/template.entity';
-import { CreateTemplateDto } from '@/template/dto';
+import { CreateTemplateDto, UpdateCurrentTemplateDto } from '@/template/dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Repository } from 'typeorm';
 import { UserEntity } from '@/user/user.entity';
 import { TemplateWithExercisesIDs } from '@/template/types';
 import RelateTemplateExerciseDto from '@/template/dto/relate-template-exercise.dto';
 import { ExerciseService } from '@/exercise/exercise.service';
+import { TrainingService } from '@/training/training.service';
+import { MonitorService } from '@/monitor/monitor.service';
 
 @Injectable()
 export class TemplateService {
@@ -14,6 +23,9 @@ export class TemplateService {
     @InjectRepository(TemplateEntity)
     private readonly templateRepository: Repository<TemplateEntity>,
     private readonly exerciseService: ExerciseService,
+    private readonly monitorService: MonitorService,
+    @Inject<ForwardReference<TrainingService>>(forwardRef(() => TrainingService))
+    private readonly trainingService: TrainingService,
   ) {}
 
   async create(dto: CreateTemplateDto, user: UserEntity): Promise<TemplateEntity> {
@@ -88,10 +100,29 @@ export class TemplateService {
     return await this.templateRepository.save(template);
   }
 
-  async next(
+  async current(userId: UserEntity['ID']): Promise<TemplateEntity> {
+    const { LastTemplateSequentialNumber } = await this.monitorService.getCurrentState(userId);
+    return await this.templateRepository.findOne({
+      where: {
+        SequentialNumber: LastTemplateSequentialNumber,
+        User: { ID: userId },
+      },
+    });
+  }
+
+  async updateCurrent(
     userId: UserEntity['ID'],
-    lastSequentialNumber: TemplateEntity['SequentialNumber'],
+    dto: UpdateCurrentTemplateDto,
   ): Promise<TemplateEntity> {
+    const newCurrent = await this.getById(userId, dto.ID);
+    await this.monitorService.update(userId, {
+      LastTemplateSequentialNumber: newCurrent.SequentialNumber,
+    });
+    return newCurrent;
+  }
+
+  async next(userId: UserEntity['ID']): Promise<TemplateEntity> {
+    const { LastTemplateSequentialNumber } = await this.monitorService.getCurrentState(userId);
     const sequentialNumber = await this.templateRepository
       .createQueryBuilder('template')
       .leftJoinAndSelect('template.User', 'user')
@@ -99,12 +130,18 @@ export class TemplateService {
       .addSelect('MIN(template.SequentialNumber)', 'min')
       .where('user.ID = :userId', { userId })
       .getRawOne<{ max: number; min: number }>();
+    if (!sequentialNumber.max && !sequentialNumber.min) {
+      throw new HttpException(
+        'You should create at least one template first.',
+        HttpStatus.CONFLICT,
+      );
+    }
     return await this.templateRepository.findOne({
       where: {
         SequentialNumber:
-          lastSequentialNumber >= sequentialNumber.max
+          LastTemplateSequentialNumber >= sequentialNumber.max
             ? sequentialNumber.min
-            : MoreThan(lastSequentialNumber),
+            : MoreThan(LastTemplateSequentialNumber),
         User: { ID: userId },
       },
       order: {

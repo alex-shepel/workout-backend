@@ -8,8 +8,10 @@ import { TemplateEntity } from '@/template/template.entity';
 import { TrainingEntity } from '@/training/training.entity';
 import { UserEntity } from '@/user/user.entity';
 import {
-  InitializeTables1677050964071,
-  JoinMonitorsColumnIntoUsersTable1677058561597,
+  AllowGroupTitlesDuplications,
+  InitializeTables,
+  JoinMonitorsColumnIntoUsersTable,
+  RemoveTrainingsTemplatesRelation,
 } from '@/migrations';
 
 const config: DataSourceOptions & TypeOrmModuleOptions = {
@@ -29,7 +31,12 @@ const config: DataSourceOptions & TypeOrmModuleOptions = {
     UserEntity,
   ],
   synchronize: false,
-  migrations: [InitializeTables1677050964071, JoinMonitorsColumnIntoUsersTable1677058561597],
+  migrations: [
+    AllowGroupTitlesDuplications,
+    InitializeTables,
+    JoinMonitorsColumnIntoUsersTable,
+    RemoveTrainingsTemplatesRelation,
+  ],
 };
 
 export default config;

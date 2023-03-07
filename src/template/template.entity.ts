@@ -1,16 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { UserEntity } from '@/user/user.entity';
 import { ExerciseEntity } from '@/exercise/exercise.entity';
-import { TrainingEntity } from '@/training/training.entity';
 
 @Entity({ name: 'templates' })
 export class TemplateEntity {
@@ -46,9 +37,6 @@ export class TemplateEntity {
     nullable: false,
   })
   SequentialNumber: number;
-
-  @OneToMany(() => TrainingEntity, training => training.Template)
-  Trainings: TrainingEntity[];
 
   @ManyToMany(() => ExerciseEntity, exercise => exercise.Templates)
   @JoinTable()

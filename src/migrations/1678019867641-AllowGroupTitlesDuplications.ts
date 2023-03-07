@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AllowGroupTitlesDuplications1678019867641 implements MigrationInterface {
+export default class AllowGroupTitlesDuplications1678019867641 implements MigrationInterface {
   name = 'AllowGroupTitlesDuplications1678019867641';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

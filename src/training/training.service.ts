@@ -1,10 +1,16 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  ForwardReference,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { TrainingEntity } from '@/training/training.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '@/user/user.entity';
 import { TemplateService } from '@/template/template.service';
-import { UpdateCurrentTrainingDto } from '@/training/dto';
 import { SetService } from '@/set/set.service';
 import { SetEntity } from '@/set/set.entity';
 import { ExerciseEntity } from '@/exercise/exercise.entity';
@@ -17,18 +23,18 @@ export class TrainingService {
   constructor(
     @InjectRepository(TrainingEntity)
     private readonly trainingRepository: Repository<TrainingEntity>,
-    private readonly templateService: TemplateService,
     private readonly setService: SetService,
     private readonly monitorService: MonitorService,
+    @Inject<ForwardReference<TemplateService>>(forwardRef(() => TemplateService))
+    private readonly templateService: TemplateService,
   ) {}
 
-  async getCurrent(user: UserEntity): Promise<TrainingEntity> {
+  async current(user: UserEntity): Promise<TrainingEntity> {
     const training = await this.trainingRepository.findOne({
       where: {
         User: { ID: user.ID },
       },
       relations: {
-        Template: true,
         Exercises: { Sets: true },
         Sets: true,
       },
@@ -36,9 +42,6 @@ export class TrainingService {
         UpdatedDate: 'DESC',
       },
     });
-    if (!training) {
-      return await this.next(user);
-    }
     training.Exercises.forEach(exercise => {
       const isCurrentSet = (goalSet: SetEntity) => training.Sets.some(set => set.ID === goalSet.ID);
       exercise.Sets = exercise.Sets.filter(isCurrentSet).sort(
@@ -49,26 +52,9 @@ export class TrainingService {
     return training;
   }
 
-  async updateCurrent(user: UserEntity, dto: UpdateCurrentTrainingDto): Promise<TrainingEntity> {
-    const current = await this.getCurrent(user);
-    const template = await this.templateService.getById(user.ID, dto.TemplateID);
-    this.trainingRepository.merge(current, { Template: template });
-    return await this.trainingRepository.save(current);
-  }
-
   async next(user: UserEntity): Promise<TrainingEntity> {
-    const templates = await this.templateService.getAll(user.ID, ['Exercises']);
-    if (templates.length === 0) {
-      throw new HttpException(
-        'You should create at least one template first.',
-        HttpStatus.CONFLICT,
-      );
-    }
     const monitorState = await this.monitorService.getCurrentState(user.ID);
-    const nextTemplate = await this.templateService.next(
-      user.ID,
-      monitorState.LastTemplateSequentialNumber,
-    );
+    const nextTemplate = await this.templateService.next(user.ID);
     await this.complete(user.ID, {
       LastTemplateSequentialNumber: nextTemplate.SequentialNumber,
       TrainingsCount: monitorState.TrainingsCount + 1,
@@ -93,7 +79,6 @@ export class TrainingService {
     }
     const training = new TrainingEntity();
     this.trainingRepository.merge(training, {
-      Template: nextTemplate,
       Exercises: currentExercises,
       Sets: currentExercises.flatMap(exercise => exercise.Sets),
       User: user,

@@ -13,7 +13,6 @@ import {
 import { ExerciseEntity } from '@/exercise/exercise.entity';
 import { UserEntity } from '@/user/user.entity';
 import { SetEntity } from '@/set/set.entity';
-import { TemplateEntity } from '@/template/template.entity';
 
 @Entity({ name: 'trainings' })
 export class TrainingEntity {
@@ -44,9 +43,6 @@ export class TrainingEntity {
     nullable: false,
   })
   Completed: boolean;
-
-  @ManyToOne(() => TemplateEntity, template => template.Trainings)
-  Template: TemplateEntity;
 
   @ManyToMany(() => ExerciseEntity, exercise => exercise.Trainings, { cascade: ['update'] })
   @JoinTable()

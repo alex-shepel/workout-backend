@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class JoinMonitorsColumnIntoUsersTable1677058561597 implements MigrationInterface {
+export default class JoinMonitorsColumnIntoUsersTable1677058561597 implements MigrationInterface {
   name = 'JoinMonitorsColumnIntoUsersTable1677058561597';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

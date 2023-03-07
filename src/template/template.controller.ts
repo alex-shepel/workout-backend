@@ -12,7 +12,11 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TemplateEntity } from '@/template/template.entity';
 import { TemplateService } from '@/template/template.service';
-import { CreateTemplateDto, RelateTemplateExerciseDto } from '@/template/dto';
+import {
+  CreateTemplateDto,
+  RelateTemplateExerciseDto,
+  UpdateCurrentTemplateDto,
+} from '@/template/dto';
 import { TemplateWithExercisesIDs } from '@/template/types';
 import { AuthGuard } from '@/user/guards';
 import { User } from '@/user/decorators';
@@ -40,15 +44,31 @@ export class TemplateController {
     return await this.templateService.getAll(userId);
   }
 
-  @ApiOperation({ summary: 'Returns next template' })
-  @ApiResponse({ status: 200, type: [TemplateEntity] })
-  @Get('next/:sequentialNumber')
+  @ApiOperation({ summary: 'Returns the current template' })
+  @ApiResponse({ status: 200, type: TemplateEntity })
+  @Get('current')
   @UseGuards(AuthGuard)
-  async next(
+  async current(@User('ID') userId: UserEntity['ID']): Promise<TemplateEntity> {
+    return await this.templateService.current(userId);
+  }
+
+  @ApiOperation({ summary: 'Changes the current template' })
+  @ApiResponse({ status: 200, type: TemplateEntity })
+  @Post('current')
+  @UseGuards(AuthGuard)
+  async updateCurrent(
     @User('ID') userId: UserEntity['ID'],
-    @Param('sequentialNumber') sequentialNumber: number,
+    @Body() dto: UpdateCurrentTemplateDto,
   ): Promise<TemplateEntity> {
-    return await this.templateService.next(userId, sequentialNumber);
+    return await this.templateService.updateCurrent(userId, dto);
+  }
+
+  @ApiOperation({ summary: 'Returns next template' })
+  @ApiResponse({ status: 200, type: TemplateEntity })
+  @Get('next')
+  @UseGuards(AuthGuard)
+  async next(@User('ID') userId: UserEntity['ID']): Promise<TemplateEntity> {
+    return await this.templateService.next(userId);
   }
 
   @ApiOperation({ summary: 'Returns a template with related exercises.' })
