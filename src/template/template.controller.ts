@@ -57,10 +57,10 @@ export class TemplateController {
   @Post('current')
   @UseGuards(AuthGuard)
   async updateCurrent(
-    @User('ID') userId: UserEntity['ID'],
+    @User() user: UserEntity,
     @Body() dto: UpdateCurrentTemplateDto,
   ): Promise<TemplateEntity> {
-    return await this.templateService.updateCurrent(userId, dto);
+    return await this.templateService.updateCurrent(user, dto);
   }
 
   @ApiOperation({ summary: 'Returns next template' })

@@ -9,7 +9,7 @@ import {
 import { TemplateEntity } from '@/template/template.entity';
 import { CreateTemplateDto, UpdateCurrentTemplateDto } from '@/template/dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan, Repository } from 'typeorm';
+import { FindOptionsRelations, MoreThan, Repository } from 'typeorm';
 import { UserEntity } from '@/user/user.entity';
 import { TemplateWithExercisesIDs } from '@/template/types';
 import RelateTemplateExerciseDto from '@/template/dto/relate-template-exercise.dto';
@@ -52,7 +52,7 @@ export class TemplateService {
   async getById(
     userId: UserEntity['ID'],
     templateId: TemplateEntity['ID'],
-    relations: Array<keyof TemplateEntity> = [],
+    relations: Array<keyof TemplateEntity> | FindOptionsRelations<TemplateEntity> = [],
   ): Promise<TemplateEntity> {
     const template = await this.templateRepository.findOne({
       where: {
@@ -110,14 +110,14 @@ export class TemplateService {
     });
   }
 
-  async updateCurrent(
-    userId: UserEntity['ID'],
-    dto: UpdateCurrentTemplateDto,
-  ): Promise<TemplateEntity> {
-    const newCurrent = await this.getById(userId, dto.ID);
-    await this.monitorService.update(userId, {
+  async updateCurrent(user: UserEntity, dto: UpdateCurrentTemplateDto): Promise<TemplateEntity> {
+    const newCurrent = await this.getById(user.ID, dto.ID, {
+      Exercises: { Group: true },
+    });
+    await this.monitorService.update(user.ID, {
       LastTemplateSequentialNumber: newCurrent.SequentialNumber,
     });
+    await this.trainingService.rebuild(user, newCurrent);
     return newCurrent;
   }
 

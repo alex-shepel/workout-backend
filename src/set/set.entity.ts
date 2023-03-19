@@ -56,10 +56,10 @@ export class SetEntity {
   })
   Completed: boolean;
 
-  @ManyToOne(() => ExerciseEntity, exercise => exercise.Sets)
+  @ManyToOne(() => ExerciseEntity, exercise => exercise.Sets, { onDelete: 'CASCADE' })
   Exercise: ExerciseEntity;
 
-  @ManyToOne(() => TrainingEntity, training => training.Sets)
+  @ManyToOne(() => TrainingEntity, training => training.Sets, { onDelete: 'CASCADE' })
   Training: TrainingEntity;
 
   @ManyToOne(() => UserEntity, user => user.Sets)

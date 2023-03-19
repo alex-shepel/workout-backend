@@ -17,6 +17,7 @@ import { ExerciseEntity } from '@/exercise/exercise.entity';
 import { MonitorService } from '@/monitor/monitor.service';
 import { GroupEntity } from '@/group/group.entity';
 import { UpdateMonitorStateDto } from '@/monitor/dto';
+import { TrainingTemplate } from '@/training/types';
 
 @Injectable()
 export class TrainingService {
@@ -29,7 +30,7 @@ export class TrainingService {
     private readonly templateService: TemplateService,
   ) {}
 
-  async current(user: UserEntity): Promise<TrainingEntity> {
+  async current(user: UserEntity): Promise<TrainingEntity | null> {
     const training = await this.trainingRepository.findOne({
       where: {
         User: { ID: user.ID },
@@ -42,6 +43,9 @@ export class TrainingService {
         UpdatedDate: 'DESC',
       },
     });
+    if (!training) {
+      return null;
+    }
     training.Exercises.forEach(exercise => {
       const isCurrentSet = (goalSet: SetEntity) => training.Sets.some(set => set.ID === goalSet.ID);
       exercise.Sets = exercise.Sets.filter(isCurrentSet).sort(
@@ -52,9 +56,8 @@ export class TrainingService {
     return training;
   }
 
-  async next(user: UserEntity): Promise<TrainingEntity> {
+  async next(user: UserEntity, nextTemplate: TrainingTemplate): Promise<TrainingEntity> {
     const monitorState = await this.monitorService.getCurrentState(user.ID);
-    const nextTemplate = await this.templateService.next(user.ID);
     await this.complete(user.ID, {
       LastTemplateSequentialNumber: nextTemplate.SequentialNumber,
       TrainingsCount: monitorState.TrainingsCount + 1,
@@ -87,6 +90,17 @@ export class TrainingService {
     delete result.User;
     delete result.Sets;
     return result;
+  }
+
+  async rebuild(user: UserEntity, nextTemplate: TrainingTemplate): Promise<TrainingEntity> {
+    const current = await this.current(user);
+    if (current) {
+      await this.trainingRepository.delete({
+        ID: current.ID,
+        User: { ID: user.ID },
+      });
+    }
+    return await this.next(user, nextTemplate);
   }
 
   private async complete(
