@@ -14,7 +14,6 @@ export class TemplateEntity {
     description: 'Title of the training template',
   })
   @Column({
-    unique: true,
     nullable: false,
   })
   Title: string;

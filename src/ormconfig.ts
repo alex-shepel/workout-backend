@@ -9,6 +9,7 @@ import { TrainingEntity } from '@/training/training.entity';
 import { UserEntity } from '@/user/user.entity';
 import {
   AllowGroupTitlesDuplications,
+  AllowTemplateTitleDuplicates,
   CascadeDeleteSetsWithExerciseOrTraining,
   InitializeTables,
   JoinMonitorsColumnIntoUsersTable,
@@ -38,6 +39,7 @@ const config: DataSourceOptions & TypeOrmModuleOptions = {
     AllowGroupTitlesDuplications,
     RemoveTrainingsTemplatesRelation,
     CascadeDeleteSetsWithExerciseOrTraining,
+    AllowTemplateTitleDuplicates,
   ],
 };
 
